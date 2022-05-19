@@ -37,12 +37,14 @@ class SummarizationModel(nn.Module):
 
         self.hp = hp
         self.dataset = dataset
-
+        print("INIT>....")
         if self.hp.sum_label_smooth:
             self.rec_crit = LabelSmoothing(size=self.dataset.subwordenc.vocab_size,
                                            smoothing=self.hp.sum_label_smooth_val)
         else:
             self.rec_crit = nn.NLLLoss(ignore_index=PAD_ID)
+            print("SS: ", self.rec_crit.reduction)
+        print("DB Info", self.rec_crit.reduction)
         self.cos_crit = nn.CosineSimilarity(dim=1)
         self.clf_crit = nn.CrossEntropyLoss()
 
@@ -107,12 +109,12 @@ class SummarizationModel(nn.Module):
         if not self.hp.concat_docs:
             n_docs = docs_ids.size(1)  # TODO: need to get data loader to choose items with same n_docs
             docs_ids = docs_ids.view(-1, docs_ids.size(-1))  # [batch * n_docs, len]
-
+        # print("Init state")
         h_init, c_init = self.docs_enc.rnn.state0(docs_ids.size(0))
         h_init, c_init = move_to_cuda(h_init), move_to_cuda(c_init)
         hiddens, cells, outputs = self.docs_enc(docs_ids, h_init, c_init)
         docs_enc_h, docs_enc_c = hiddens[-1], cells[-1]  # [_, n_layers, hidden]
-
+        # print("Jump to decode 1")
         ##########################################################
         # DECODE INTO SUMMARIES AND / OR ORIGINAL REVIEWS
         ##########################################################
@@ -121,8 +123,11 @@ class SummarizationModel(nn.Module):
         if self.hp.autoenc_docs:
             assert (self.hp.concat_docs == False), \
                 'Docs must be encoded individually for autoencoder. Set concat_docs=False'
+            # print("II")
             init_input = torch.LongTensor([EDOC_ID for _ in range(docs_enc_h.size(0))])  # batch * n_docs
+            # print("Move cuda")
             init_input = move_to_cuda(init_input)
+            # print("Auto dec")
             docs_autodec_probs, _, docs_autodec_texts, _ = self.docs_autodec(docs_enc_h, docs_enc_c, init_input,
                                                                              targets=docs_ids,
                                                                              eos_id=EDOC_ID, non_pad_prob_val=1e-14,
@@ -130,7 +135,8 @@ class SummarizationModel(nn.Module):
                                                                              sample_method='greedy',
                                                                              tau=tau,
                                                                              subwordenc=self.dataset.subwordenc)
-
+            # print("O", self.rec_crit)
+            # print("LLLL ", self.rec_crit.reduction)
             docs_autodec_logprobs = torch.log(docs_autodec_probs)
             autoenc_loss = self.rec_crit(docs_autodec_logprobs.view(-1, docs_autodec_logprobs.size(-1)),
                                          docs_ids.view(-1))
@@ -152,6 +158,7 @@ class SummarizationModel(nn.Module):
                 return self.stats, dummy_summ_texts
 
         # Decode into summary
+        # print("Decode into summary")
         if not self.hp.concat_docs:
             _, n_layers, hidden_size = docs_enc_h.size()
             docs_enc_h = docs_enc_h.view(batch_size, n_docs, n_layers, hidden_size)

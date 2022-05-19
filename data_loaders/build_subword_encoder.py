@@ -44,12 +44,13 @@ def main(opt):
         print('Writing reviews to file')
         with open('/tmp/{}_data.txt'.format(opt.dataset), 'w') as f:
             for texts, ratings, metadata in dl:
-                f.write('{}\n'.format(texts[0]))
+               f.write('{}\n'.format(texts[0]))
         print('Creating token counts')
         token_counts = tokenizer.corpus_token_counts(
             '/tmp/{}_data.txt'.format(opt.dataset),
             opt.corpus_max_lines,
             split_on_newlines=True)
+        pass
     elif opt.corpus_filepattern:
         token_counts = tokenizer.corpus_token_counts(
             opt.corpus_filepattern,

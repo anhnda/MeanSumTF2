@@ -1,17 +1,14 @@
-# MeanSum: A Model for Unsupervised Neural Multi-Document Abstractive Summarization
+# Update code of MEANSUM to new package versions
 
-Corresponding paper, accepted to ICML 2019: [https://arxiv.org/abs/1810.05739](https://arxiv.org/abs/1810.05739).
-
-## Requirements
-
-Main requirements:
-- python 3
-- torch 0.4.0
-
-Rest of python packages in ```requirements.txt```.
-Tested in Docker, image = ```pytorch/pytorch:0.4_cuda9_cudnn7```.
 
 ## General setup 
+
+Install conda environment
+```
+conda env create -f env.yml
+conda activate m2
+```
+
 
 Execute inside ```scripts/```:
 
@@ -21,11 +18,7 @@ Execute inside ```scripts/```:
 bash setup_dirs.sh
 ```
 
-##### Install python packages:
 
-```
-bash install_python_pkgs.sh
-```
 
 ##### The default parameters for Tensorboard(x?) cause texts from writer.add_text() to not show up. Update by:
 
@@ -44,21 +37,21 @@ python update_tensorboard.py
     ```
     bash scripts/preprocess_data.sh
     ```
-3. Download subword tokenizer built on Yelp and place in 
-```datasets/yelp_dataset/processed/```: 
-[link](https://s3.us-east-2.amazonaws.com/unsup-sum/subwordenc_32000_maxrevs260_fixed.pkl)
+3. Run script to generate subwordencoder:
+   ```
+   
+   PYTHONPATH=. python data_loaders/build_subword_encoder.py --dataset=yelp --output_dir=./ --output_fn=subwordenc
+   ```
 
-### Pre-trained models
-
-1. Download summarization model and place in 
-```stable_checkpoints/sum/mlstm/yelp/batch_size_16-notes_cycloss_honly-sum_lr_0.0005-tau_2.0/```: 
-[link](https://s3.us-east-2.amazonaws.com/unsup-sum/sum_e0_tot3.32_r1f0.27.pt)
-2. Download language model and place in 
-```stable_checkpoints/lm/mlstm/yelp/batch_size_512-lm_lr_0.001-notes_data260_fixed/```: 
-[link](https://s3.us-east-2.amazonaws.com/unsup-sum/lm_e24_2.88.pt)
-3. Download classification model and place in 
-```stable_checkpoints/clf/cnn/yelp/batch_size_256-notes_data260_fixed/```: 
-[link](https://s3.us-east-2.amazonaws.com/unsup-sum/clf_e10_l0.6760_a0.7092.pt)
+   ```
+   cp subwordenc.pkl datasets/yelp_dataset/processed/
+   ```
+   
+4. Train language model:
+   ```
+   python pretrain_lm.py
+   ```
+   Copy the one trained model (.pt file) from checkpoints/lm/mlstm/yelp  to: stable_checkpoints/lm/mlstm/yelp
 
 
 ### Reference summaries

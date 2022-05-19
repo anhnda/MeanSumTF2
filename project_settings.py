@@ -32,16 +32,13 @@ class DatasetConfig(object):
             self.reviews_path = 'datasets/yelp_dataset/review.json'
             self.businesses_path = 'datasets/yelp_dataset/business.json'
             self.processed_path = 'datasets/yelp_dataset/processed/'
-            self.subwordenc_path = 'datasets/yelp_dataset/processed/subwordenc_32000_maxrevs260_fixed.pkl'
+            self.subwordenc_path = 'datasets/yelp_dataset/processed/subwordenc.pkl'
 
             # Trained models
-            self.lm_path = 'stable_checkpoints/lm/mlstm/yelp/batch_size_512-lm_lr_0.001-notes_data260_fixed/' \
-                           'lm_e24_2.88.pt'
+            self.lm_path = 'stable_checkpoints/lm/mlstm/yelp/lm_e0_3.31.pt'
             self.clf_path = 'stable_checkpoints/clf/cnn/yelp/batch_size_256-notes_data260_fixed/' \
                             'clf_e10_l0.6760_a0.7092.pt'
-            self.sum_path = 'stable_checkpoints/sum/mlstm/yelp/' \
-                            'batch_size_16-notes_cycloss_honly-sum_lr_0.0005-tau_2.0/' \
-                            'sum_e0_tot3.32_r1f0.27.pt'
+            self.sum_path = 'stable_checkpoints/sum/mlstm/yelp/sum_e0_tot2.72_r1f0.25.pt'
             self.autoenc_path = 'stable_checkpoints/sum/mlstm/yelp/' \
                     'autoenc_only_True-batch_size_16-sum_cycle_False-sum_lr_0.0005-tau_2.0/sum_e22_tot2.16_r1f0.03.pt'
 
@@ -129,7 +126,7 @@ class HParams(object):
         self.discrim_model = 'cnn'
         self.discrim_onehot = True
 
-        self.sum_clf = True  # calculate classification loss and accuracy
+        self.sum_clf = False  # calculate classification loss and accuracy
         self.sum_clf_lr = 0.0  # when 0, don't backwards() etc
 
         self.sum_lr = 0.0001

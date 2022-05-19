@@ -55,12 +55,17 @@ def save_file(data, path, verbose=False):
 
 def load_file(path, append_path=None):
     _, ext = os.path.splitext(path)
-    if ext == '.pkl':
-        with open(path, 'rb') as f:
-            data = pickle.load(f)
-    elif ext == '.json':
-        with open(path, 'r') as f:
-            data = json.load(f)
+    try:
+        if ext == '.pkl':
+            with open(path, 'rb') as f:
+                data = pickle.load(f)
+        elif ext == '.json':
+            with open(path, 'r') as f:
+                data = json.load(f)
+    except:
+        print("No valid file at: ", path)
+        data = None
+
     return data
 
 

@@ -353,9 +353,11 @@ class YelpDataset(SummReviewDataset):
         print('Filtering reviews longer than: {}'.format(review_max_len))
         item_to_reviews = defaultdict(list)
         for r in self.reviews:
-            if len(self.subwordenc.encode(r['text'])) < review_max_len:
+            if self.subwordenc is not None:
+                if len(self.subwordenc.encode(r['text'])) < review_max_len:
+                    item_to_reviews[r['business_id']].append(r)
+            else:
                 item_to_reviews[r['business_id']].append(r)
-
         # Calculate target amount of reviews per item
         n = sum([len(revs) for revs in item_to_reviews.values()])
         print('Total number of reviews before filtering: {}'.format(len(self.reviews)))
