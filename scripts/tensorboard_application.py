@@ -50,6 +50,10 @@ PLUGINS_LISTING_ROUTE = '/plugins_listing'
 # names as follows.
 _VALID_PLUGIN_RE = re.compile(r'^[A-Za-z0-9_.-]+$')
 
+import logging
+
+logger = tf.get_logger()
+logger.setLevel(logging.INFO)
 
 def tensor_size_guidance_from_flags(flags):
   """Apply user per-summary size guidance overrides."""
@@ -211,8 +215,8 @@ class TensorBoardWSGI(object):
       except Exception as e:  # pylint: disable=broad-except
         if type(plugin) is core_plugin.CorePlugin:  # pylint: disable=unidiomatic-typecheck
           raise
-        tf.logging.warning('Plugin %s failed. Exception: %s',
-                           plugin.plugin_name, str(e))
+        logger.warning(('Plugin %s failed. Exception: %s',
+                           plugin.plugin_name, str(e)))
         continue
       for route, app in plugin_apps.items():
         if not route.startswith('/'):
@@ -241,9 +245,9 @@ class TensorBoardWSGI(object):
       start = time.time()
       response[plugin.plugin_name] = plugin.is_active()
       elapsed = time.time() - start
-      tf.logging.info(
+      logger.info((
           'Plugin listing: is_active() for %s took %0.3f seconds',
-          plugin.plugin_name, elapsed)
+          plugin.plugin_name, elapsed))
     return http_util.Respond(request, response, 'application/json')
 
   def __call__(self, environ, start_response):  # pylint: disable=invalid-name
@@ -270,7 +274,7 @@ class TensorBoardWSGI(object):
     if clean_path in self.data_applications:
       return self.data_applications[clean_path](environ, start_response)
     else:
-      tf.logging.warning('path %s not found, sending 404', clean_path)
+      logger.warning(('path %s not found, sending 404', clean_path))
       return http_util.Respond(request, 'Not found', 'text/plain', code=404)(
           environ, start_response)
     # pylint: enable=too-many-function-args
@@ -328,13 +332,13 @@ def reload_multiplexer(multiplexer, path_to_run):
       name is interpreted as a run name equal to the path.
   """
   start = time.time()
-  tf.logging.info('TensorBoard reload process beginning')
+  logger.info(('TensorBoard reload process beginning'))
   for (path, name) in six.iteritems(path_to_run):
     multiplexer.AddRunsFromDirectory(path, name)
-  tf.logging.info('TensorBoard reload process: Reload the whole Multiplexer')
+  logger.info(('TensorBoard reload process: Reload the whole Multiplexer'))
   multiplexer.Reload()
   duration = time.time() - start
-  tf.logging.info('TensorBoard done reloading. Load took %0.3f secs', duration)
+  logger.info(('TensorBoard done reloading. Load took %0.3f secs', duration))
 
 
 def start_reloading_multiplexer(multiplexer, path_to_run, load_interval):
