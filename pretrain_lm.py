@@ -203,7 +203,7 @@ class LanguageModel(object):
         # Get data, setup
         #
 
-        self.dataset = SummDatasetFactory.get(self.opt.dataset)
+        self.dataset = SummDatasetFactory.get(self.opt.dataset, tp=self.opt.tp)
         subwordenc = self.dataset.subwordenc
         train_iter = self.dataset.get_data_loader(split='train', n_docs=self.hp.n_docs, sample_reviews=True,
                                                   batch_size=self.hp.batch_size, shuffle=True)
@@ -291,8 +291,10 @@ if __name__ == '__main__':
     hp, run_name, parser = create_argparse_and_update_hp(hp)
 
     # Add training language model args
-    parser.add_argument('--dataset', default='yelp',
-                        help='yelp,amazon')
+    parser.add_argument('--dataset', default='gene',
+                        help='yelp,amazon,gene')
+    parser.add_argument('--tp', default=0,
+                        help='tp')
     parser.add_argument('--save_model_fn', default='lm',
                         help="Model filename to save")
     parser.add_argument('--save_model_basedir', default=os.path.join(SAVED_MODELS_DIR, 'lm', '{}', '{}'),
@@ -306,7 +308,7 @@ if __name__ == '__main__':
     opt = parser.parse_args()
 
     # Create directory to store results and save run info
-    save_dir = os.path.join(opt.save_model_basedir.format(hp.model_type, opt.dataset), run_name)
+    save_dir = os.path.join(opt.save_model_basedir.format(hp.model_type, opt.dataset), run_name) + "_"+ str(opt.tp)
     save_run_data(save_dir, hp=hp)
 
     setup_gpus(opt.gpus, hp.seed)

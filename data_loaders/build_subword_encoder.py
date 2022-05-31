@@ -38,13 +38,13 @@ from utils import save_file, create_argparse_and_update_hp
 
 def main(opt):
     if opt.dataset:
-        dataset = SummDatasetFactory.get(opt.dataset)
+        dataset = SummDatasetFactory.get(opt.dataset, tp=opt.tp)
         dl = dataset.get_data_loader(split='train', n_docs=1, sample_reviews=False,
                                      batch_size=1, num_workers=0, shuffle=False)
         print('Writing reviews to file')
         with open('/tmp/{}_data.txt'.format(opt.dataset), 'w') as f:
             for texts, ratings, metadata in dl:
-               f.write('{}\n'.format(texts[0]))
+                f.write('{}\n'.format(texts[0]))
         print('Creating token counts')
         token_counts = tokenizer.corpus_token_counts(
             '/tmp/{}_data.txt'.format(opt.dataset),
@@ -65,9 +65,9 @@ def main(opt):
         reserved_tokens=RESERVED_TOKENS)
 
     print('Saving tokenizer')
-    vocab_fp = os.path.join(opt.output_dir, opt.output_fn + '.txt')  # stores vocab coutns
+    vocab_fp = os.path.join(opt.output_dir, opt.output_fn + opt.tp + '.txt')  # stores vocab coutns
     encoder.store_to_file(vocab_fp)
-    enc_fp = os.path.join(opt.output_dir, opt.output_fn + '.pkl')
+    enc_fp = os.path.join(opt.output_dir, opt.output_fn + opt.tp + '.pkl')
     save_file(encoder, enc_fp, verbose=True)
 
     pdb.set_trace()
@@ -81,10 +81,12 @@ if __name__ == '__main__':
 
     parser.add_argument('--corpus_filepattern', default=None, help='Corpus of one or more text files')
     parser.add_argument('--corpus_max_lines', default=float('inf'), help='How many lines of coprus to read')
-    parser.add_argument('--dataset', default=None, help='yelp,amazon')
+    parser.add_argument('--dataset', default=None, help='yelp,amazon,gene')
 
     parser.add_argument('--target_size', default=32000, help='Target size of vocab')
     parser.add_argument('--num_iterations', default=4, help='Number of iterations')
+    parser.add_argument('--tp', default=0, help='Tp')
+
     opt = parser.parse_args()
 
     main(opt)

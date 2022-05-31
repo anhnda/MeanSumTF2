@@ -10,6 +10,7 @@ mkdir -p outputs/eval/amazon/n_docs_8
 
 mkdir -p datasets/yelp_dataset/processed
 mkdir -p datasets/amazon_dataset/processed
+mkdir -p datasets/gene/processed
 
 # Experiments will go here
 mkdir -p checkpoints/lm/mlstm/yelp
@@ -20,6 +21,11 @@ mkdir -p checkpoints/lm/mlstm/amazon
 mkdir -p checkpoints/clf/cnn/amazon
 mkdir -p checkpoints/sum/mlstm/amazon
 
+
+mkdir -p checkpoints/lm/mlstm/gene
+mkdir -p checkpoints/clf/cnn/gene
+mkdir -p checkpoints/sum/mlstm/gene
+
 # Pretrained / trained models will go here
 mkdir -p stable_checkpoints/lm/mlstm/yelp
 mkdir -p stable_checkpoints/clf/cnn/yelp
@@ -28,3 +34,7 @@ mkdir -p stable_checkpoints/sum/mlstm/yelp
 mkdir -p stable_checkpoints/lm/mlstm/amazon
 mkdir -p stable_checkpoints/clf/cnn/amazon
 mkdir -p stable_checkpoints/sum/mlstm/amazon
+
+mkdir -p stable_checkpoints/lm/mlstm/gene
+mkdir -p stable_checkpoints/clf/cnn/gene
+mkdir -p stable_checkpoints/sum/mlstm/gene

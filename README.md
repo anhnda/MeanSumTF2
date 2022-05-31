@@ -40,7 +40,7 @@ python update_tensorboard.py
 3. Run script to generate subwordencoder:
    ```
    
-   PYTHONPATH=. python data_loaders/build_subword_encoder.py --dataset=yelp --output_dir=./ --output_fn=subwordenc
+   PYTHONPATH=. python data_loaders/build_subword_encoder.py --dataset=gene --tp=0 --output_dir=./ --output_fn=subwordenc
    ```
 
    ```

@@ -55,6 +55,7 @@ def save_file(data, path, verbose=False):
 
 def load_file(path, append_path=None):
     _, ext = os.path.splitext(path)
+    # print("Loading file fc: ", path)
     try:
         if ext == '.pkl':
             with open(path, 'rb') as f:
