@@ -367,6 +367,7 @@ class Summarizer(object):
                 print('\n', '-' * 100)
                 print('ORIGINAL REVIEWS: ', texts[0].encode('utf8'))
                 print('-' * 100)
+                print(metadata['item'])
                 print('SUMMARY: ', summ_texts[0].encode('utf8'))
                 print('-' * 100, '\n')
 
