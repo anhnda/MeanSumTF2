@@ -46,7 +46,8 @@ python update_tensorboard.py
    ```
    cp subwordenc.pkl datasets/yelp_dataset/processed/
    ```
-   
+   Re-run train-test splitting...
+
 4. Train language model:
    ```
    python pretrain_lm.py
@@ -75,5 +76,5 @@ python train_sum.py --mode=test --gpus=0 --batch_size=16 --notes=<run_name>
 Training summarization model (using pre-trained language model and default hyperparams).
 The automated metrics results will be in ```checkpoints/sum/mlstm/yelp/<hparams>_<additional_notes>```.:
 ```
-python train_sum.py --batch_size=16 --gpus=0,1,2,3 --notes=<additional_notes> 
+python train_sum.py --batch_size=16 --gpus=0,1 --notes=<additional_notes> 
 ```

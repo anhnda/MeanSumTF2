@@ -354,7 +354,9 @@ class GeneDataset(SummReviewDataset):
         item_to_reviews = defaultdict(list)
         for r in self.reviews:
             if self.subwordenc is not None:
-                if len(self.subwordenc.encode(r['text'])) < review_max_len:
+                tt = self.subwordenc.encode(r['text'])
+
+                if review_max_len > len(tt) >= 2:
                     item_to_reviews[r['business_id']].append(r)
             else:
                 item_to_reviews[r['business_id']].append(r)

@@ -61,7 +61,7 @@ def main(opt):
 
     print('Building to target size')
     encoder = text_encoder.SubwordTextEncoder.build_to_target_size(
-        opt.target_size, token_counts, 0, 1e9,
+        opt.target_size, token_counts, 0, 1e5,
         reserved_tokens=RESERVED_TOKENS)
 
     print('Saving tokenizer')

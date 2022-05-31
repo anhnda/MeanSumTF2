@@ -940,8 +940,8 @@ if __name__ == '__main__':
     hp = HParams()
     hp, run_name, parser = create_argparse_and_update_hp(hp)
 
-    parser.add_argument('--dataset', default='yelp',
-                        help='yelp,amazon')
+    parser.add_argument('--dataset', default='gene',
+                        help='yelp,amazon,gene')
     parser.add_argument('--az_cat', default=None,
                         help='"Movies_and_TV" or "Electronics"'
                              'Only train on one category')
@@ -963,7 +963,8 @@ if __name__ == '__main__':
                         help="Path to pretrained document autoencoder")
     parser.add_argument('--load_discrim', default='',
                         help="Path to discriminator")
-
+    parser.add_argument('--tp', default=0,
+                        help="tp")
     parser.add_argument('--mode', default='train',
                         help="train or test")
     parser.add_argument('--load_test_sum', default=None,
@@ -989,7 +990,7 @@ if __name__ == '__main__':
 
     # Set some default paths. It's dataset dependent, which is why we do it here, as dataset is also a
     # command line argument
-    ds_conf = DatasetConfig(opt.dataset)
+    ds_conf = DatasetConfig(opt.dataset, opt.tp)
     if opt.load_lm is None:
         opt.load_lm = ds_conf.lm_path
     if opt.load_clf is None:

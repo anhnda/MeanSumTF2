@@ -46,7 +46,7 @@ class DatasetConfig(object):
 
             self.review_max_len = 150
             self.extractive_max_len = 38  # 99.5th percentile of reviews
-            self.item_min_reviews = 50
+            self.item_min_reviews = 30
             self.item_max_reviews = 260  # 90th percentile
             self.vocab_size = 32000  # target vocab size when building subwordenc
 
@@ -58,11 +58,11 @@ class DatasetConfig(object):
             self.subwordenc_path = 'datasets/gene/processed/subwordenc%s.pkl'% tp
             print(self.subwordenc_path)
             # Trained models
-            self.lm_path = 'stable_checkpoints/lm/mlstm/yelp/lm_e35_2.87.pt'
-            self.clf_path = 'stable_checkpoints/clf/cnn/yelp/batch_size_256-notes_data260_fixed/' \
+            self.lm_path = 'stable_checkpoints/lm/mlstm/gene/lm_e6_0.55.pt'
+            self.clf_path = 'stable_checkpoints/clf/cnn/gene/batch_size_256-notes_data260_fixed/' \
                             'clf_e10_l0.6760_a0.7092.pt'
-            self.sum_path = 'stable_checkpoints/sum/mlstm/yelp/sum_e0_tot2.72_r1f0.25.pt'
-            self.autoenc_path = 'stable_checkpoints/sum/mlstm/yelp/' \
+            self.sum_path = 'stable_checkpoints/sum/gene/yelp/sum_e0_tot2.72_r1f0.25.pt'
+            self.autoenc_path = 'stable_checkpoints/gene/mlstm/yelp/' \
                                 'autoenc_only_True-batch_size_16-sum_cycle_False-sum_lr_0.0005-tau_2.0/sum_e22_tot2.16_r1f0.03.pt'
 
         elif name == 'amazon':
@@ -95,8 +95,8 @@ class HParams(object):
         #
         ###############################################
         self.model_type = 'mlstm'  # mlstm, transformer
-        self.emb_size = 256
-        self.hidden_size = 512
+        self.emb_size = 256 # 200 # 256    #
+        self.hidden_size = 512 # 300 # 512
 
         # transformer
         self.tsfr_blocks = 6
@@ -178,7 +178,7 @@ class HParams(object):
         # LANGUAGE MODEL SPECIFIC
         ###############################################
         self.lm_lr = 0.0005
-        self.lm_seq_len = 256
+        self.lm_seq_len = 250
 
         # language model and mlstm (transformer has its own schedule)
         self.lm_clip = 5.0  # clip gradients
