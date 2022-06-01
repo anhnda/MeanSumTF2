@@ -4,7 +4,10 @@ import json
 
 DATA_DIR = "../datasets/GeneCards"
 
-
+def process_pw_id(pw_id: str):
+    if pw_id.startswith("https:"):
+        pw_id = pw_id.split("/")[-1]
+    return pw_id
 def load_gen_func_description(concat=True):
     fun_des_file = csv.reader(open("%s/GeneFuncDescriptionsV5.7.csv" % DATA_DIR))
     next(fun_des_file, None)
@@ -90,7 +93,7 @@ def load_pathway2gene():
     pw_id_2_gene = {}
     for row in gp_file:
         gen_id = row[0]
-        pw_id = row[3]
+        pw_id = process_pw_id(row[3])
         pw_name = row[1]
         pw_g = get_update_dict(pw_id_2_gene, pw_id, [])
         pw_g.append(gen_id)

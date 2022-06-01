@@ -366,7 +366,8 @@ class Summarizer(object):
                 print('\n', '-' * 100)
                 print('ORIGINAL REVIEWS: ', texts[0].encode('utf8'))
                 print('-' * 100)
-                print(metadata['item'])
+                print(metadata['item'][0])
+                print(metadata['selected_genes'][0])
                 print('SUMMARY: ', summ_texts[0].encode('utf8'))
                 print('-' * 100, '\n')
 
@@ -887,7 +888,8 @@ class Summarizer(object):
                 pred_probs = [None for _ in range(len(summaries_batch))]
             else:
                 accuracy = update_moving_avg(accuracy, acc.item(), i + 1)
-
+            # print("Metadata: ", metadata)
+            # print(len(summaries_batch))
             for j in range(len(summaries_batch)):
                 dic = {'docs': texts[j],
                        'summary': summaries_batch[j],

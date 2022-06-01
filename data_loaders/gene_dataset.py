@@ -103,7 +103,7 @@ class GenePytorchDataset(Dataset):
         item_to_nreviews = load_file(
             os.path.join(self.ds_conf.processed_path, '{}/store-to-nreviews.json'.format(split)))
         self.idx_to_item = {}
-
+        # print("Item to nreview: ", item_to_nreviews)
         if sample_reviews:
             if n_reviews_min and n_reviews_max:
                 self.idx_to_nreviews = {}
@@ -149,6 +149,8 @@ class GenePytorchDataset(Dataset):
                             idx += 1
         else:
             # __getitem__ will not sample
+            print("N reviews for each sum ", n_reviews)
+
             idx = 0
             self.idx_to_item_startidx = {}
             # idx items idx of one dataset item. item_startidx is the idx within that item's reviews.
@@ -204,6 +206,7 @@ class GenePytorchDataset(Dataset):
 
         # Collect data for this item
         texts, ratings = zip(*[(s['text'], s['stars']) for s in reviews])
+        gene_ids = ",".join([s['user_id'] for s in reviews])
         texts = SummDataset.concat_docs(texts, edok_token=True)
         avg_rating = int(np.round(np.mean(ratings)))
 
@@ -213,7 +216,9 @@ class GenePytorchDataset(Dataset):
             # print(e)
             categories = '---'
         metadata = {'item': item,
-                    'categories': categories}
+                    'categories': categories,
+                    'selected_genes' : gene_ids
+                    }
 
         # try:
         #     metadata = {'item': item,
