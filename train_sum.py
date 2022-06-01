@@ -314,7 +314,6 @@ class Summarizer(object):
             ppl_time = time.time() - ppl_time
             stats['nll'] = nll
 
-
             #
             # Stats, print, etc.
             #
@@ -370,7 +369,6 @@ class Summarizer(object):
                 print(metadata['item'])
                 print('SUMMARY: ', summ_texts[0].encode('utf8'))
                 print('-' * 100, '\n')
-
 
                 print('\n', '#' * 100, '\n')
 
@@ -612,25 +610,27 @@ class Summarizer(object):
         self.discrim_model = None
         self.discrim_optimizer = None
         if self.hp.sum_discrim:
-            if len(self.opt.load_discrim):
-                print('Loading pretrained discriminator from: {}'.format(self.opt.load_discrim))
-                if self.hp.discrim_model == 'cnn':
-                    text_model = torch.load(self.opt.load_discrim)['model']
-                self.discrim_optimizer = OptWrapper(self.discrim_model, self.hp.sum_clip,
-                                                    optim.Adam(text_model.parameters(), lr=self.hp.discrim_lr))
-            else:
-                print('Path to pretrained discriminator not given: training from scratch')
-                if self.hp.discrim_model == 'cnn':
-                    cnn_output_size = self.hp.cnn_n_feat_maps * len(self.hp.cnn_filter_sizes)
-                    text_model = TextClassifier(self.dataset.subwordenc.vocab_size, self.hp.emb_size,
-                                                self.hp.cnn_filter_sizes, self.hp.cnn_n_feat_maps, self.hp.cnn_dropout,
-                                                cnn_output_size, self.dataset.n_ratings_labels,
-                                                onehot_inputs=self.hp.discrim_onehot)
-            self.discrim_model = Discriminator(text_model, self.hp.discrim_model)
-            discrim_params = [p for p in self.discrim_model.parameters() if p.requires_grad]
-            self.discrim_optimizer = OptWrapper(self.discrim_model, self.hp.sum_clip,
-                                                optim.Adam(discrim_params, lr=self.hp.discrim_lr))
-            self.optimizers['discrim_optimizer'] = self.discrim_optimizer
+            raise NotImplementedError
+            exit(-1)
+            # if len(self.opt.load_discrim):
+            #     print('Loading pretrained discriminator from: {}'.format(self.opt.load_discrim))
+            #     if self.hp.discrim_model == 'cnn':
+            #         text_model = torch.load(self.opt.load_discrim)['model']
+            #     self.discrim_optimizer = OptWrapper(self.discrim_model, self.hp.sum_clip,
+            #                                         optim.Adam(text_model.parameters(), lr=self.hp.discrim_lr))
+            # else:
+            #     print('Path to pretrained discriminator not given: training from scratch')
+            #     if self.hp.discrim_model == 'cnn':
+            #         cnn_output_size = self.hp.cnn_n_feat_maps * len(self.hp.cnn_filter_sizes)
+            #         text_model = TextClassifier(self.dataset.subwordenc.vocab_size, self.hp.emb_size,
+            #                                     self.hp.cnn_filter_sizes, self.hp.cnn_n_feat_maps, self.hp.cnn_dropout,
+            #                                     cnn_output_size, self.dataset.n_ratings_labels,
+            #                                     onehot_inputs=self.hp.discrim_onehot)
+            # self.discrim_model = Discriminator(text_model, self.hp.discrim_model)
+            # discrim_params = [p for p in self.discrim_model.parameters() if p.requires_grad]
+            # self.discrim_optimizer = OptWrapper(self.discrim_model, self.hp.sum_clip,
+            #                                     optim.Adam(discrim_params, lr=self.hp.discrim_lr))
+            # self.optimizers['discrim_optimizer'] = self.discrim_optimizer
 
         #
         # Classifier
@@ -765,7 +765,7 @@ class Summarizer(object):
             def grouped_reviews_iter(n_docs):
                 store_path = os.path.join(self.dataset.conf.processed_path, 'test',
                                           'plHKBwA18aWeP-TG8DC96Q_reviews.json')
-                                          # 'SqxIx0KbTmCvUlOfkjamew_reviews.json')
+                # 'SqxIx0KbTmCvUlOfkjamew_reviews.json')
                 from utils import load_file
                 revs = load_file(store_path)
                 rating_to_revs = defaultdict(list)
@@ -778,16 +778,16 @@ class Summarizer(object):
                     metadata = {'item': ['SqxIx0KbTmCvUlOfkjamew'],
                                 'categories': ['Restaurants---Vegan---Thai'],
                                 'city': ['Las Vegas']}
-                    yield(texts, ratings, metadata)
+                    yield (texts, ratings, metadata)
+
             self.hp.batch_size = 1
-            test_iter  = grouped_reviews_iter(self.hp.n_docs)
+            test_iter = grouped_reviews_iter(self.hp.n_docs)
             test_iter_len = 3
         else:
             test_iter = self.dataset.get_data_loader(split='test', sample_reviews=False, n_docs=self.hp.n_docs,
                                                      category=self.opt.az_cat,
                                                      batch_size=self.hp.batch_size, shuffle=False)
             test_iter_len = test_iter.__len__()
-
 
         self.tb_val_sub_writer = None
 
@@ -809,7 +809,6 @@ class Summarizer(object):
         self.fixed_lm = torch.load(self.dataset.conf.lm_path)['model']  # StackedLSTMEncoder
         self.fixed_lm = self.fixed_lm.module if isinstance(self.fixed_lm, nn.DataParallel) \
             else self.fixed_lm
-
 
         # Adding this now for backwards compatability
         # Was testing with a model that didn't have early_cycle
@@ -872,7 +871,7 @@ class Summarizer(object):
         per_rating_acc = defaultdict(int)
         clf_model = self.sum_model.module.clf_model if self.ngpus > 1 else self.sum_model.clf_model
         if self.opt.test_group_ratings:
-            test_iter  = grouped_reviews_iter(self.hp.n_docs)
+            test_iter = grouped_reviews_iter(self.hp.n_docs)
         for i, (texts, ratings_batch, metadata) in enumerate(test_iter):
             summaries_batch = summaries[i * self.hp.batch_size: i * self.hp.batch_size + len(texts)]
             acc, per_rating_counts, per_rating_acc, pred_ratings, pred_probs = \
@@ -883,7 +882,7 @@ class Summarizer(object):
                 true_rating_dist[rating.item()] += 1
 
             if acc is None:
-                print('Summary was too short to classify')
+                # print('Summary was too short to classify')
                 pred_ratings = [None for _ in range(len(summaries_batch))]
                 pred_probs = [None for _ in range(len(summaries_batch))]
             else:
@@ -892,9 +891,10 @@ class Summarizer(object):
             for j in range(len(summaries_batch)):
                 dic = {'docs': texts[j],
                        'summary': summaries_batch[j],
-                       'rating': ratings_batch[j].item(),
-                       'pred_rating': pred_ratings[j].item(),
-                       'pred_prob': pred_probs[j].item()}
+                       # 'rating': ratings_batch[j].item(),
+                       # 'pred_rating': pred_ratings[j].item(),
+                       # 'pred_prob': pred_probs[j].item()
+                       }
                 for k, values in metadata.items():
                     dic[k] = values[j]
                 results.append(dic)
@@ -909,31 +909,31 @@ class Summarizer(object):
         summs_out_fp = os.path.join(out_dir, 'summaries.json')
         save_file(results, summs_out_fp)
 
-        true_rating_dist = {k: v / float(sum(true_rating_dist.values())) for k, v in true_rating_dist.items()}
-        out_fp = os.path.join(out_dir, 'classificaton_acc.json')
-        save_file({'acc': accuracy, 'per_rating_acc': per_rating_acc, 'true_rating_dist': true_rating_dist}, out_fp)
-
-        print('-' * 50)
-        print('Stats:')
-        print('Rating accuracy: ', accuracy)
-        print('Per rating accuracy: ', dict(per_rating_acc))
-        out_fp = os.path.join(out_dir, 'stats.json')
-        save_file(stats_avgs, out_fp)
-
-        print('-' * 50)
-        print('Rouges:')
-        for stat, rouge_dict in evaluator.get_avg_stats_dicts().items():
-            print('-' * 50)
-            print(stat.upper())
-            print(evaluator.to_str(rouge_dict))
-
-            out_fp = os.path.join(out_dir, 'avg_{}-rouges.json'.format(stat))
-            save_file(rouge_dict, out_fp)
-            out_fp = os.path.join(out_dir, 'avg_{}-rouges.csv'.format(stat))
-            evaluator.to_csv(rouge_dict, out_fp)
-
-        out_fp = os.path.join(out_dir, '{}-rouges.pdf')
-        evaluator.plot_rouge_distributions(show=self.opt.show_figs, out_fp=out_fp)
+        # true_rating_dist = {k: v / float(sum(true_rating_dist.values())) for k, v in true_rating_dist.items()}
+        # out_fp = os.path.join(out_dir, 'classificaton_acc.json')
+        # save_file({'acc': accuracy, 'per_rating_acc': per_rating_acc, 'true_rating_dist': true_rating_dist}, out_fp)
+        #
+        # print('-' * 50)
+        # # print('Stats:')
+        # # print('Rating accuracy: ', accuracy)
+        # # print('Per rating accuracy: ', dict(per_rating_acc))
+        # out_fp = os.path.join(out_dir, 'stats.json')
+        # save_file(stats_avgs, out_fp)
+        #
+        # print('-' * 50)
+        # print('Rouges:')
+        # for stat, rouge_dict in evaluator.get_avg_stats_dicts().items():
+        #     print('-' * 50)
+        #     print(stat.upper())
+        #     print(evaluator.to_str(rouge_dict))
+        #
+        #     out_fp = os.path.join(out_dir, 'avg_{}-rouges.json'.format(stat))
+        #     save_file(rouge_dict, out_fp)
+        #     out_fp = os.path.join(out_dir, 'avg_{}-rouges.csv'.format(stat))
+        #     evaluator.to_csv(rouge_dict, out_fp)
+        #
+        # out_fp = os.path.join(out_dir, '{}-rouges.pdf')
+        # evaluator.plot_rouge_distributions(show=self.opt.show_figs, out_fp=out_fp)
 
 
 if __name__ == '__main__':
