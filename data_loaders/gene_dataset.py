@@ -159,11 +159,12 @@ class GenePytorchDataset(Dataset):
                 if item_n_reviews <= item_max_reviews:
                     tot += item_n_reviews
                     item_startidx = 0
-                    for _ in range(math.floor(item_n_reviews / n_reviews)):
+                    s_n_reviews = min(n_reviews, item_n_reviews)
+                    for _ in range(math.floor(item_n_reviews / s_n_reviews)):
                         self.idx_to_item[idx] = item
                         self.idx_to_item_startidx[idx] = item_startidx
                         idx += 1
-                        item_startidx += n_reviews
+                        item_startidx += s_n_reviews
 
         if self.subset:
             end = int(self.subset * len(self.idx_to_item))
